@@ -12,6 +12,10 @@ run: build
 build:
 	@go generate ./... && go build -o build/$(EXE) ./cmd/eporezi/main.go
 
+.PHONY: test
+test:
+	@go test ./... -v
+
 .PHONY: dist
 dist: dist-linux
 
