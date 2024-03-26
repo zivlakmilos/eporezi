@@ -10,7 +10,7 @@ run: build
 
 .PHONY: build
 build:
-	@go build -o build/$(EXE) ./cmd/eporezi/main.go
+	@go generate ./... && go build -o build/$(EXE) ./cmd/eporezi/main.go
 
 .PHONY: dist
 dist: dist-linux

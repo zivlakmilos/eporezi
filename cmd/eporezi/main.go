@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/zivlakmilos/eporezi/private/cmd"
+)
 
 func main() {
-	fmt.Printf("Hello World!\n")
+	cmd.Execute()
 }
