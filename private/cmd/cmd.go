@@ -15,9 +15,9 @@ var cfg Config = Config{}
 
 var rootCmd = &cobra.Command{
 	Use:   "ePorezi",
-	Short: "ePorezi - Nezvanična aplikacija za pristup portalu ePorezi",
-	Long: `Nezvanična aplikacija za pristup portalu ePorezi.
-Nastala sa namerom da omogući Linux korisnicima pristup portalu ePorezi uz pomoć kvalifikovanog elektronskog sertifikata`,
+	Short: "ePorezi - Unofficial app for access Serbian electronic tax system ePorezi",
+	Long: `Unofficial app for access Serbian electronic tax system ePorezi.
+Allows Linux users to access Serbian tax system ePorezi.`,
 	Version: "1.0.0",
 }
 
