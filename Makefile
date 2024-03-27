@@ -16,6 +16,12 @@ build:
 test:
 	@go test ./... -v
 
+.PHONY: install
+install:
+	@cp ./build/ePorezi /usr/bin/ePorezi
+	@cp ./resources/ePorezi.png /usr/share/icons/ePorezi.png
+	@cp ./resources/ePorezi.desktop /usr/share/applications/ePorezi.desktop
+
 .PHONY: dist
 dist: dist-linux
 
