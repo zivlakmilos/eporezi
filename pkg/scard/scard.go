@@ -1,8 +1,6 @@
 package scard
 
 import (
-	"fmt"
-
 	"github.com/google/go-pkcs11/pkcs11"
 )
 
@@ -32,31 +30,11 @@ func (s *SCard) Open(pin string) error {
 		return err
 	}
 
-	ids, err := s.module.SlotIDs()
-	for _, id := range ids {
-		info, _ := s.module.SlotInfo(id)
-		if info.Serial != "" {
-			s.info = info
-			s.slot, err = s.module.Slot(id, pkcs11.Options{
-				PIN: pin,
-			})
-			if err != nil {
-				return err
-			}
-			break
-		}
-	}
-
 	return nil
 }
 
 func (s *SCard) Close() error {
-	if s.slot != nil {
-		err := s.slot.Close()
-		if err != nil {
-			return err
-		}
-	}
+	s.Disconnect()
 
 	if s.module != nil {
 		err := s.module.Close()
@@ -68,13 +46,52 @@ func (s *SCard) Close() error {
 	return nil
 }
 
-func (s *SCard) Info() (*Info, error) {
-	if s.info == nil {
-		return nil, fmt.Errorf("error: slot not present")
+func (s *SCard) Connect(id uint32, pin string) error {
+	var err error
+	s.slot, err = s.module.Slot(id, pkcs11.Options{
+		PIN: pin,
+	})
+	if err != nil {
+		return err
 	}
 
-	return &Info{
-		Label:        s.info.Label,
-		SerialNumber: s.info.Serial,
-	}, nil
+	return nil
+}
+
+func (s *SCard) Disconnect() error {
+	if s.slot != nil {
+		err := s.slot.Close()
+		if err != nil {
+			return err
+		}
+
+		s.slot = nil
+	}
+
+	return nil
+}
+
+func (s *SCard) ListCards() ([]*Info, error) {
+	cards := []*Info{}
+
+	ids, err := s.module.SlotIDs()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, id := range ids {
+		info, err := s.module.SlotInfo(id)
+		if err != nil {
+			return nil, err
+		}
+
+		if info.Serial != "" {
+			cards = append(cards, &Info{
+				Label:        info.Label,
+				SerialNumber: info.Serial,
+			})
+		}
+	}
+
+	return cards, nil
 }
