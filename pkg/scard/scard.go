@@ -1,6 +1,11 @@
 package scard
 
 import (
+	"crypto/x509"
+	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/google/go-pkcs11/pkcs11"
 )
 
@@ -17,7 +22,7 @@ func NewSCard(module string) *SCard {
 	}
 }
 
-func (s *SCard) Open(pin string) error {
+func (s *SCard) Open() error {
 	var err error
 	defer func() {
 		if err != nil {
@@ -87,6 +92,7 @@ func (s *SCard) ListCards() ([]*Info, error) {
 
 		if info.Serial != "" {
 			cards = append(cards, &Info{
+				Id:           id,
 				Label:        info.Label,
 				SerialNumber: info.Serial,
 			})
@@ -94,4 +100,57 @@ func (s *SCard) ListCards() ([]*Info, error) {
 	}
 
 	return cards, nil
+}
+
+func (s *SCard) SubjectInfo() (*SubjectInfo, error) {
+	cert, err := s.getCertificate()
+	if err != nil {
+		return nil, err
+	}
+
+	name := strings.Split(cert.Subject.CommonName, " ")
+	if len(name) < 2 {
+		return nil, fmt.Errorf("error: cen't parse name from certificate")
+	}
+
+	r, err := regexp.Compile("[0-9]{13}")
+	if err != nil {
+		panic("error: compile regexp")
+	}
+	personalId := r.FindString(cert.Subject.SerialNumber)
+	if personalId == "" {
+		return nil, fmt.Errorf("error: can't parse personal id")
+	}
+
+	subject := &SubjectInfo{
+		Name:       name[0],
+		Surname:    name[1],
+		PersonalId: personalId,
+	}
+	return subject, nil
+}
+
+func (s *SCard) getCertificate() (*x509.Certificate, error) {
+	objs, err := s.slot.Objects(pkcs11.Filter{
+		Class: pkcs11.ClassCertificate,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if len(objs) == 0 {
+		return nil, fmt.Errorf("error: certifiace not found")
+	}
+
+	cert, err := objs[0].Certificate()
+	if err != nil {
+		return nil, err
+	}
+
+	x509Cert, err := cert.X509()
+	if err != nil {
+		return nil, err
+	}
+
+	return x509Cert, nil
 }
