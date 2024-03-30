@@ -22,7 +22,7 @@ Allows Linux users to access Serbian tax system ePorezi.`,
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&cfg.PKCS11Module, "module", "m", "/usr/lib/libaetpkss.so", "PKCS11 Module")
+	rootCmd.PersistentFlags().StringVarP(&cfg.PKCS11Module, "module", "m", "/usr/lib/libaetpkss.so.3", "PKCS11 Module")
 }
 
 func Execute() {
