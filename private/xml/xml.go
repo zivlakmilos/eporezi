@@ -36,12 +36,12 @@ func (x *Xml) AddEnvelope(ref string) error {
 
 	sigEl.AddChild(createSignature())
 
-	err := x.SetReference("123")
+	err := x.setReference("123")
 	if err != nil {
 		return err
 	}
 
-	err = x.SetDigest("123")
+	err = x.setDigest("123")
 	if err != nil {
 		return err
 	}
@@ -49,7 +49,12 @@ func (x *Xml) AddEnvelope(ref string) error {
 	return nil
 }
 
-func (x *Xml) SetDigest(ref string) error {
+func (x *Xml) String() string {
+	str, _ := x.doc.WriteToString()
+	return str
+}
+
+func (x *Xml) setDigest(ref string) error {
 	el := x.doc.FindElement(fmt.Sprintf("//*[@id='%s']", ref))
 	if el == nil {
 		return fmt.Errorf("error: cannot find reference tag")
@@ -78,7 +83,7 @@ func (x *Xml) SetDigest(ref string) error {
 	return nil
 }
 
-func (x *Xml) SetReference(uri string) error {
+func (x *Xml) setReference(uri string) error {
 	el := x.doc.FindElement("//Signature/SignedInfo/Reference")
 	if el == nil {
 		return fmt.Errorf("error: Reference element not found")
@@ -87,9 +92,4 @@ func (x *Xml) SetReference(uri string) error {
 	el.CreateAttr("URI", uri)
 
 	return nil
-}
-
-func (x *Xml) String() string {
-	str, _ := x.doc.WriteToString()
-	return str
 }
