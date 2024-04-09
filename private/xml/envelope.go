@@ -11,6 +11,9 @@ func createSignature() *etree.Element {
 	signedInfo := createSignedInfo()
 	signature.AddChild(signedInfo)
 
+	signatureValue := etree.NewElement("SignatureValue")
+	signature.AddChild(signatureValue)
+
 	return signature
 }
 
